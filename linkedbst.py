@@ -11,6 +11,9 @@ Author: Ken Lambert
 # pylint:disable=too-many-branches
 
 import math
+import random
+import time
+import copy
 
 from abstractcollection import AbstractCollection
 from bstnode import BSTNode
@@ -99,6 +102,44 @@ class LinkedBST(AbstractCollection):
                 return recurse(node.right)
 
         return recurse(self._root)
+
+    def iterative_search(self, item):
+        """
+        search for item iteratively
+        :param item:
+        :return:
+        """
+        root = self._root
+        while root is not None:
+            if item > root.data:
+                root = root.right
+            elif item < root.data:
+                root = root.left
+            else:
+                return True
+        return False
+
+    def insert_iter(self, item):
+        new_node = BSTNode(item)
+        root = self._root
+        if self.isEmpty():
+            self._root = new_node
+        else:
+            pointer1 = root
+            pointer2 = None
+            while pointer1 is not None:
+                pointer2 = pointer1
+                if item < pointer1.data:
+                    pointer1 = pointer1.left
+                else:
+                    pointer1 = pointer1.right
+            if pointer2 is None:
+                pointer2 = new_node
+            elif item < pointer2.data:
+                pointer2.left = new_node
+            else:
+                pointer2.right = new_node
+        self._size += 1
 
     # Mutator methods
     def clear(self):
@@ -273,7 +314,7 @@ class LinkedBST(AbstractCollection):
         Return True if tree is balanced
         :return:
         """
-        if self.height() < 2*math.log2(self._size + 1) - 1:
+        if self.height() < 2 * math.log2(self._size + 1) - 1:
             return True
         return False
 
@@ -451,6 +492,32 @@ class LinkedBST(AbstractCollection):
 
         return curr.data if curr is not None else None
 
+    def inorder_iter(self):
+        stack = []
+        res = []
+        cur_node = self._root
+        while True:
+            if cur_node is not None:
+                stack.append(cur_node)
+                cur_node = cur_node.left
+            elif stack:
+                cur_node = stack.pop()
+                res.append(cur_node)
+                cur_node = cur_node.right
+            else:
+                break
+        return res
+
+    def array_to_bst(self, arr):
+        if not arr:
+            return None
+
+        mid = len(arr) // 2
+        root = arr[mid]
+        root.left = self.array_to_bst(arr[:mid])
+        root.right = self.array_to_bst(arr[mid + 1:])
+        return root
+
     def demo_bst(self, path):
         """
         Demonstration of efficiency binary search tree for the search tasks.
@@ -459,34 +526,113 @@ class LinkedBST(AbstractCollection):
         :return:
         :rtype:
         """
+        bt_alphabet = LinkedBST()
+        with open(path, 'r', encoding='utf-8') as my_file:
+            dictionary_list = my_file.read().splitlines()
+            # get 10000 random words from the dictionary
+            words = random.sample(dictionary_list, 10000)
+            bt_alphabet._root = BSTNode(dictionary_list[0])
+            bt_alphabet._size += 1
+            root = bt_alphabet._root
+            random_dictionary = copy.deepcopy(dictionary_list)
+            random.shuffle(random_dictionary)
+            for i in dictionary_list[1:]:
+                root.right = BSTNode(i)
+                root = root.right
+                bt_alphabet._size += 1
+
+                # bt_alphabet.insert_iter(i)
+            bt_random = LinkedBST()
+            for i in random_dictionary:
+                bt_random.insert_iter(i)
+
+        start_list = time.time()
+        for i in words:
+            if i in dictionary_list:
+                something = True
+            else:
+                something = False
+        end_list = time.time()
+        list_duration = end_list - start_list
+        print(f"List: {list_duration}")
+
+        start_bt_alphabet = time.time()
+        for i in words:
+            if bt_alphabet.iterative_search(i):
+                something = True
+            else:
+                something = False
+        end_bt_alphabet = time.time()
+        bt_alphabet_duration = end_bt_alphabet - start_bt_alphabet
+        print(f"Binary tree(alphabetically): {bt_alphabet_duration}")
+
+        start_bt_random = time.time()
+        for i in words:
+            if bt_random.iterative_search(i):
+                something = True
+            else:
+                something = False
+        end_bt_random = time.time()
+        bt_random_duration = end_bt_random - start_bt_random
+        print(f"Binary tree(randomly): {bt_random_duration}")
+        bt_random_rebalanced = bt_random.rebalance()
+
+        start_bt_random_rebalanced = time.time()
+        for i in words:
+            if bt_random_rebalanced.iterative_search(i):
+                something = True
+            else:
+                something = False
+        end_bt_random_rebalanced = time.time()
+        bt_random_rebalanced_duration = end_bt_random_rebalanced - start_bt_random_rebalanced
+        print(f"Binary Balanced tree(randomly): {bt_random_rebalanced_duration}")
 
 
 if __name__ == "__main__":
-    lbst = LinkedBST()
-    lbst.add(4)
-    lbst.add(2)
-    lbst.add(7)
-    lbst.add(3)
-    lbst.add(6)
-    lbst.add(1)
-    lbst.add(9)
-    lbst1 = LinkedBST()
-    lbst1.add(1)
-    lbst1.add(2)
-    lbst1.add(3)
-    lbst1.add(4)
-    lbst1.add(5)
-    lbst1.add(6)
-    lbst1.add(7)
-    lbst1.add(8)
+    lbst_demo = LinkedBST()
+    lbst_demo.insert_iter('d')
+    lbst_demo.insert_iter('b')
+    lbst_demo.insert_iter('c')
+    lbst_demo.insert_iter('a')
+    lbst_demo.insert_iter('e')
+    lbst_demo.insert_iter('f')
+    lbst_demo.insert_iter('g')
+    lbst_demo.insert_iter('h')
+    print(lbst_demo)
+    # res = lbst_demo.inorder_iter()
+    # print([i.data for i in res])
+    # new_bst = LinkedBST().array_to_bst(res)
+    # new_new = LinkedBST()
+    # new_new._root = new_bst
+    # print(new_new)
 
-    print(lbst)
-    print(lbst.height())
-    print(lbst.is_balanced())
-    print(lbst1)
-    print(lbst1.is_balanced())
-    print(lbst1.rebalance())
-    # print(lbst.successor(5).data)
-    # print(lbst.predecessor(5).data)
-    # print(lbst.successor(14).data)
-    print(lbst.range_find(3, 7))
+    lbst_demo.demo_bst('words.txt')
+    # print(lbst_demo)
+    # lbst = LinkedBST()
+    # lbst.add(4)
+    # lbst.add(2)
+    # lbst.add(7)
+    # lbst.add(3)
+    # lbst.add(6)
+    # lbst.add(1)
+    # lbst.add(9)
+    # lbst1 = LinkedBST()
+    # lbst1.add(1)
+    # lbst1.add(2)
+    # lbst1.add(3)
+    # lbst1.add(4)
+    # lbst1.add(5)
+    # lbst1.add(6)
+    # lbst1.add(7)
+    # lbst1.add(8)
+    #
+    # print(lbst)
+    # print(lbst.height())
+    # print(lbst.is_balanced())
+    # print(lbst1)
+    # print(lbst1.is_balanced())
+    # print(lbst1.rebalance())
+    # # print(lbst.successor(5).data)
+    # # print(lbst.predecessor(5).data)
+    # # print(lbst.successor(14).data)
+    # print(lbst.range_find(3, 7))
