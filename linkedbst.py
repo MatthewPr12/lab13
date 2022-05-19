@@ -546,6 +546,23 @@ class LinkedBST(AbstractCollection):
             for i in random_dictionary:
                 bt_random.insert_iter(i)
 
+        self.find_in_list(words, dictionary_list)
+
+        self.find_in_alpha_tree(bt_alphabet, words)
+
+        self.find_in_random_tree(bt_random, words)
+        bt_random_rebalanced = bt_random.rebalance()
+
+        self.find_in_btree(bt_random_rebalanced, words)
+
+    @staticmethod
+    def find_in_list(words, dictionary_list):
+        """
+        find words in list using list methods
+        :param words:
+        :param dictionary_list:
+        :return:
+        """
         start_list = time.time()
         for i in words:
             if i in dictionary_list:
@@ -554,8 +571,17 @@ class LinkedBST(AbstractCollection):
                 something = False
         end_list = time.time()
         list_duration = end_list - start_list
-        print(f"List: {list_duration}")
+        print(f"List: {list_duration:.3f}")
 
+    @staticmethod
+    def find_in_alpha_tree(bt_alphabet, words):
+        """
+        find words in binary tree, which is created
+        by adding words in alphabetical order
+        :param bt_alphabet:
+        :param words:
+        :return:
+        """
         start_bt_alphabet = time.time()
         for i in words:
             if bt_alphabet.iterative_search(i):
@@ -564,8 +590,17 @@ class LinkedBST(AbstractCollection):
                 something = False
         end_bt_alphabet = time.time()
         bt_alphabet_duration = end_bt_alphabet - start_bt_alphabet
-        print(f"Binary tree(alphabetically): {bt_alphabet_duration}")
+        print(f"Binary tree(alphabetically): {bt_alphabet_duration:.3f}")
 
+    @staticmethod
+    def find_in_random_tree(bt_random, words):
+        """
+        find words in tree which is created
+        by adding words randomly
+        :param bt_random:
+        :param words:
+        :return:
+        """
         start_bt_random = time.time()
         for i in words:
             if bt_random.iterative_search(i):
@@ -574,9 +609,16 @@ class LinkedBST(AbstractCollection):
                 something = False
         end_bt_random = time.time()
         bt_random_duration = end_bt_random - start_bt_random
-        print(f"Binary tree(randomly): {bt_random_duration}")
-        bt_random_rebalanced = bt_random.rebalance()
+        print(f"Binary tree(randomly): {bt_random_duration:.3f}")
 
+    @staticmethod
+    def find_in_btree(bt_random_rebalanced, words):
+        """
+        find words in balanced tree
+        :param bt_random_rebalanced:
+        :param words:
+        :return:
+        """
         start_bt_random_rebalanced = time.time()
         for i in words:
             if bt_random_rebalanced.iterative_search(i):
@@ -585,7 +627,7 @@ class LinkedBST(AbstractCollection):
                 something = False
         end_bt_random_rebalanced = time.time()
         bt_random_rebalanced_duration = end_bt_random_rebalanced - start_bt_random_rebalanced
-        print(f"Binary Balanced tree(randomly): {bt_random_rebalanced_duration}")
+        print(f"Binary Balanced tree: {bt_random_rebalanced_duration:.3f}")
 
 
 if __name__ == "__main__":
